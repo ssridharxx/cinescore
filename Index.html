@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineScore - Movie Reviews & Ratings</title>
+    <style>
+        :root {
+            --md-sys-color-primary: #d0bcff;
+            --md-sys-color-on-primary: #381e72;
+            --md-sys-color-surface: #141218;
+            --md-sys-color-on-surface: #e6e1e5;
+            --md-sys-color-surface-container: #211f26;
+            --md-sys-color-surface-container-high: #2b2930;
+            --md-sys-color-outline: #938f99;
+        }
+
+        [data-theme="light"] {
+            --md-sys-color-primary: #6750a4;
+            --md-sys-color-on-primary: #ffffff;
+            --md-sys-color-surface: #fef7ff;
+            --md-sys-color-on-surface: #1d1b20;
+            --md-sys-color-surface-container: #f3edf7;
+            --md-sys-color-surface-container-high: #ece6f0;
+            --md-sys-color-outline: #79747e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--md-sys-color-surface-container);
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+        }
+
+        header {
+            padding: 16px 20px;
+            background: var(--md-sys-color-surface-container-high);
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: transparent;
+            border: 1px solid var(--md-sys-color-outline);
+            color: var(--md-sys-color-on-surface);
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.75rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: var(--md-sys-color-surface-container-high);
+            padding: 0 16px 12px 16px;
+            gap: 8px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            color: var(--md-sys-color-outline);
+            border: none;
+            padding: 8px;
+            border-radius: 100px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .tab-btn.active {
+            background: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+        }
+
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .view-section {
+            display: none;
+        }
+
+        .view-section.active {
+            display: block;
+        }
+
+        .movie-card {
+            background: var(--md-sys-color-surface-container-high);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+            overflow: hidden;
+        }
+
+        .movie-poster {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            border-radius: 14px;
+            margin-bottom: 12px;
+        }
+
+        .movie-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--md-sys-color-primary);
+        }
+
+        .movie-genre {
+            font-size: 0.85rem;
+            color: var(--md-sys-color-outline);
+            margin-bottom: 12px;
+        }
+
+        .score-badge {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(103, 80, 164, 0.12);
+            color: var(--md-sys-color-primary);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+
+        .review-text {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        button.action-btn {
+            flex: 1;
+            background: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+            border: none;
+            padding: 10px;
+            border-radius: 100px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        button.secondary {
+            background: transparent;
+            color: var(--md-sys-color-primary);
+            border: 1px solid var(--md-sys-color-outline);
+        }
+
+        input, textarea {
+            width: 100%;
+            background: var(--md-sys-color-surface);
+            border: 1px solid var(--md-sys-color-outline);
+            border-radius: 12px;
+            padding: 10px;
+            color: var(--md-sys-color-on-surface);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body data-theme="dark">
+
+    <div class="app-container">
+        <header>
+            <span>🎬 CineScore</span>
+            <button class="theme-toggle" onclick="toggleTheme()">☀️ / 🌙 Theme</button>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('home', this)">Movies</button>
+            <button class="tab-btn" onclick="switchTab('search', this)">Search</button>
+            <button class="tab-btn" onclick="switchTab('add', this)">Rate / Review</button>
+        </div>
+
+        <div class="content">
+            <!-- Movie Feed View (Admin Provided Content) -->
+            <div id="home-view" class="view-section active">
+                <div id="movieList">
+                    
+                    <div class="movie-card">
+                        <img src="https://images.unsplash.com/photo-1534447677768-be436bb09401?w=600" class="movie-poster" alt="Movie Poster">
+                        <div class="movie-title">Dune: Part Two</div>
+                        <div class="movie-genre">Sci-Fi • Adventure</div>
+                        <div class="score-badge">⭐ 9.2 / 10 Score</div>
+                        <div class="review-text">Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators who destroyed his family.</div>
+                        <div class="actions">
+                            <button class="action-btn" onclick="shareScore('Dune: Part Two', '9.2/10')">Share Score</button>
+                            <button class="action-btn secondary" onclick="alert('Added to your watchlist!')">Watchlist</button>
+                        </div>
+                    </div>
+
+                    <div class="movie-card">
+                        <img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600" class="movie-poster" alt="Movie Poster">
+                        <div class="movie-title">Interstellar</div>
+                        <div class="movie-genre">Sci-Fi • Drama</div>
+                        <div class="score-badge">⭐ 9.5 / 10 Score</div>
+                        <div class="review-text">A team of explorers travel through a wormhole in space in an attempt to ensure humanity's survival.</div>
+                        <div class="actions">
+                            <button class="action-btn" onclick="shareScore('Interstellar', '9.5/10')">Share Score</button>
+                            <button class="action-btn secondary" onclick="alert('Added to your watchlist!')">Watchlist</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Search View -->
+            <div id="search-view" class="view-section">
+                <input type="text" id="searchInput" placeholder="Search movies..." oninput="searchMovies()">
+                <div id="searchResults" style="font-size: 0.9rem; color: var(--md-sys-color-outline); margin-top: 8px;">
+                    Type a title above to filter movies...
+                </div>
+            </div>
+
+            <!-- User Interaction / Review Submission View -->
+            <div id="add-view" class="view-section">
+                <div style="font-weight: 600; margin-bottom: 8px; color: var(--md-sys-color-primary);">Add Your Rating & Review</div>
+                <input type="text" id="movieTitle" placeholder="Movie Title You Watched">
+                <input type="text" id="movieScore" placeholder="Your Rating (e.g. 9/10)">
+                <textarea id="movieReview" placeholder="Write your personal review or thoughts..." rows="3"></textarea>
+                <button class="action-btn" onclick="addUserReview()" style="width: 100%;">Submit Review</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+        }
+
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName + '-view').classList.add('active');
+            element.classList.add('active');
+        }
+
+        function addUserReview() {
+            const title = document.getElementById('movieTitle').value;
+            const score = document.getElementById('movieScore').value;
+            const review = document.getElementById('movieReview').value;
+
+            if(!title || !score) {
+                alert('Please enter a movie title and score.');
+                return;
+            }
+
+            const list = document.getElementById('movieList');
+            const card = document.createElement('div');
+            card.className = 'movie-card';
+            card.innerHTML = `
+                <div class="movie-title">💬 User Review: ${title}</div>
+                <div class="score-badge">⭐ Rated ${score}</div>
+                <div class="review-text">${review || 'No written review.'}</div>
+                <div class="actions">
+                    <button class="action-btn" onclick="shareScore('${title}', '${score}')">Share Score</button>
+                    <button class="action-btn secondary" onclick="alert('Review liked!')">Like</button>
+                </div>
+            `;
+            list.prepend(card);
+
+            document.getElementById('movieTitle').value = '';
+            document.getElementById('movieScore').value = '';
+            document.getElementById('movieReview').value = '';
+
+            switchTab('home', document.querySelectorAll('.tab-btn')[0]);
+        }
+
+        function shareScore(title, score) {
+            const text = `Check out this movie score! ${title} rated ${score} on CineScore.`;
+            if (navigator.share) {
+                navigator.share({ title: 'Movie Score', text: text }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(text);
+                alert('Score card copied to clipboard!');
+            }
+        }
+
+        function searchMovies() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('#movieList .movie-card');
+            let foundCount = 0;
+            
+            cards.forEach(card => {
+                const title = card.querySelector('.movie-title').innerText.toLowerCase();
+                if(title.includes(query)) {
+                    card.style.display = 'block';
+                    foundCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            document.getElementById('searchResults').innerText = foundCount === 0 ? 'No matching movies found.' : `Found ${foundCount} movie(s).`;
+        }
+    </script>
+</body>
+</html>
